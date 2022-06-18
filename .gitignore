@@ -1,0 +1,14 @@
+.vscode
+
+.eggs
+*.egg-info
+build
+dist
+__pycache__
+.ipynb_checkpoints
+
+data/*
+data/*.zip
+data/*.csv
+!data/__init__.py
+airplane-dataset-trans
