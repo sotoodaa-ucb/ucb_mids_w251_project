@@ -3,8 +3,10 @@ import os
 import shutil
 import zipfile
 import pandas as pd
+import numpy as np
 import torch
 import wget
+from albumentations import Compose as ACompose
 from mids_plane_classification.utils.progress import progress_bar
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
@@ -24,7 +26,16 @@ class PlaneDataset(Dataset):
 
     def __getitem__(self, index):
         image, label = self.dataset[index]
-        x = self.transform(image) if self.transform else image
+
+        # Annoyingly, albumentations and Pytorch Compose
+        # transforms have different argument requirements.
+        if self.transform:
+            if isinstance(self.transform, Compose):
+                x = self.transform(image)
+            elif isinstance(self.transform, ACompose):
+                x = self.transform(image=np.array(image))['image']
+        else:
+            x = image
         y = label
         return x, y
 
@@ -70,7 +81,7 @@ class PlaneDataModule:
 
         1. Checks if the labels are downloaded, if not download them.
         2. Checks if the images zip is downloaded, if not download it.
-        3. Check if the images have been unzipped, if not then unzip them.
+        3. Checks if the images have been unzipped, if not then unzip them.
         4. Remove various duplicates in the dataset.
            The dataset is relatively unclean and has duplicate images stored
            in different folders. Since ImageFolder is used, all folders in
@@ -79,7 +90,7 @@ class PlaneDataModule:
            which are labeled according to the annotations csv.
 
         Args:
-            cleanup (bool) - Boolean flag to indicatee whetheer or not to
+            cleanup (bool) - Boolean flag to indicate whether or not to
             performs the cleanup step to delete duplicates.
         """
         if not os.path.exists(self.data_dir):
