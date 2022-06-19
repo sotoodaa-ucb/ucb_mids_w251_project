@@ -44,6 +44,23 @@ class PlaneDataset(Dataset):
 
 
 class PlaneDataModule:
+    """Data module used to preprocess and store relevant data objects.
+
+    Args:
+        train_batch_size (int): Train DataLoader batch size.
+        val_batch_size (int): Validation DataLoader batch size.
+        train_ratio (float, optional): Ratio to apply for train validation split.
+            Should be a fractional value [0, 1]. Defaults to 0.8.
+        data_dir (str, optional): Where the data is stored or where the prepare_data
+            method will store the data on download. Defaults to './data'.
+        num_workers (int, optional): How many threads to use during training.
+            Defaults to 8.
+        train_transform (Compose, optional): Transforms to apply as a Compose.
+            Supports both Albumentations and Pytorch composes. Defaults to None.
+        val_transform (Compose, optional): Transforms to apply as a Compose.
+            Supports both Albumentations and Pytorch composes. Defaults to None.
+        seed (int, optional): Seed value for reproducibility and debugging. Defaults to None.
+    """
     def __init__(
         self,
         train_batch_size: int,
@@ -79,6 +96,10 @@ class PlaneDataModule:
     def prepare_data(self, cleanup: bool = True) -> None:
         """Perform various preprocessing steps here.
 
+        Checks if the dataset exists locally. If not, then the download
+        and extraction is performed for you.  This method only needs
+        to be called once for a specified location.
+
         1. Checks if the labels are downloaded, if not download them.
         2. Checks if the images zip is downloaded, if not download it.
         3. Checks if the images have been unzipped, if not then unzip them.
@@ -91,7 +112,7 @@ class PlaneDataModule:
 
         Args:
             cleanup (bool) - Boolean flag to indicate whether or not to
-            performs the cleanup step to delete duplicates.
+            perform the cleanup step to delete duplicates or excess folders.
         """
         if not os.path.exists(self.data_dir):
             os.mkdir(self.data_dir)
@@ -156,9 +177,15 @@ class PlaneDataModule:
                 if name not in labels:
                     shutil.rmtree(file_or_dir)
 
+    def setup(self) -> None:
+        """Performs train and validation split and applies transforms.
+
+        Split the dataset, builds the dataset as an ImageFolder, and applies
+        the transforms initialized in the constructor.  Should be called after
+        prepare_data().
+        """
         self.dataset = PlaneImageFolder(self.data_dir)
 
-    def setup(self):
         train_size = self.train_ratio
         self.train_count = int(train_size * len(self.dataset))
         self.val_count = len(self.dataset) - self.train_count
@@ -170,7 +197,9 @@ class PlaneDataModule:
         self.train_dataset = PlaneDataset(train, transform=self.transform_train)
         self.val_dataset = PlaneDataset(val, transform=self.transform_val)
 
-    def train_dataloader(self):
+    def train_dataloader(self) -> DataLoader:
+        self._validate_setup_called()
+
         return DataLoader(
             self.train_dataset,
             batch_size=self.train_batch_size,
@@ -178,9 +207,15 @@ class PlaneDataModule:
             shuffle=True
         )
 
-    def val_dataloader(self):
+    def val_dataloader(self) -> DataLoader:
+        self._validate_setup_called()
+
         return DataLoader(
             self.val_dataset,
             batch_size=self.val_batch_size,
             num_workers=self.num_workers
         )
+
+    def _validate_setup_called(self) -> None:
+        if not hasattr(self, 'train_dataset'):
+            raise RuntimeError('Dataloader called before setup!')
