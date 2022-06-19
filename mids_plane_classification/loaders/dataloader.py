@@ -84,11 +84,11 @@ class PlaneDataModule:
 
         # Apply transforms.
         self.transform_train = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor()
         ]) if not train_transform else train_transform
         self.transform_val = transforms.Compose([
-            transforms.Resize((256, 256)),
+            transforms.Resize((224, 224)),
             transforms.ToTensor()
         ]) if not val_transform else val_transform
         self.num_workers = num_workers
