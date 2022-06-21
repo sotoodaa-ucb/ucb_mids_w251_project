@@ -6,7 +6,6 @@ import pandas as pd
 import numpy as np
 import torch
 import wget
-from albumentations import Compose as ACompose
 from mids_plane_classification.utils.progress import progress_bar
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
@@ -32,7 +31,7 @@ class PlaneDataset(Dataset):
         if self.transform:
             if isinstance(self.transform, Compose):
                 x = self.transform(image)
-            elif isinstance(self.transform, ACompose):
+            else:
                 x = self.transform(image=np.array(image))['image']
         else:
             x = image
