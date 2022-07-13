@@ -2,15 +2,16 @@ import glob
 import os
 import shutil
 import zipfile
-import pandas as pd
 import numpy as np
+import pandas as pd
 import torch
 import wget
-from mids_plane_classification.utils.progress import progress_bar
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torchvision.transforms.transforms import Compose
+
+from mids_plane_classification.utils.progress import progress_bar
 
 
 class PlaneImageFolder(ImageFolder):

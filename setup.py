@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import setuptools
 import pathlib
+import setuptools
 
 here = pathlib.Path(__file__).parent.resolve()
 

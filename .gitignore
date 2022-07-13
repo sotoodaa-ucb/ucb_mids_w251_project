@@ -7,6 +7,7 @@ dist
 __pycache__
 .ipynb_checkpoints
 
+wandb
 data/*
 data/*.zip
 data/*.csv
