@@ -9,6 +9,8 @@ All the sample images are carefully labeled by seven specialists in the field of
 
 The goal of this project is to design and develop an efficient Neural Network that can accurately classify aircraft types at a reasonable inference speed on an edge device.
 
+![inference](./res/inference.png)
+
 ## Members
 - Zachary Lim
 - Lucy Wu
