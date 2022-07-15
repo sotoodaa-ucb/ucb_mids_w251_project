@@ -16,7 +16,7 @@ class Engine:
 
         # Instantiate the proper model and obtain checkpoint.
         self.model = MODEL_TYPE_DICT[model_type]['model']()
-        self.device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.checkpoint = torch.load(
             os.path.join(os.path.dirname(__file__), MODEL_TYPE_DICT[model_type]['checkpoint_path']),
             map_location=torch.device(self.device)
