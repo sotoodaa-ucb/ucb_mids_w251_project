@@ -1,6 +1,8 @@
 import numpy as np
 from PIL import Image
 from mids_plane_classification.inference import Engine, ModelType
+from mids_plane_classification.publisher import Publisher
+from mids_plane_classification.utils.publisher import API_GATEWAY_URL
 
 
 def main():
@@ -10,8 +12,14 @@ def main():
     # Simple instantiation of the model.
     engine = Engine(ModelType.RESNET18)
 
+    # Instantiate the S3 publisher.
+    publisher = Publisher(API_GATEWAY_URL, verbose=True)
+
     # Inference engine should handle resizing, tensor conversion, etc.
     index, label = engine.predict(img)
+
+    # Publish results to S3.
+    publisher.publish(img, label)
 
     print(index, label)
 
