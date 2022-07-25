@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-from mids_plane_classification.inference import Engine, ModelType
+from mids_plane_classification.inference import ModelType, OnnxEngine
 from mids_plane_classification.publisher import Publisher
 from mids_plane_classification.utils.publisher import API_GATEWAY_URL
 
@@ -10,7 +10,7 @@ def main():
     img = np.array(Image.open('../res/test_image.png').convert('RGB'))
 
     # Simple instantiation of the model.
-    engine = Engine(ModelType.RESNET18)
+    engine = OnnxEngine(ModelType.ONNX_RESNET18)
 
     # Instantiate the S3 publisher.
     publisher = Publisher(API_GATEWAY_URL, verbose=True)
